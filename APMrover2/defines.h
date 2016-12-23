@@ -1,32 +1,27 @@
-// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
-
-#ifndef _DEFINES_H
-#define _DEFINES_H
+#pragma once
 
 // Internal defines, don't edit and expect things to work
 // -------------------------------------------------------
 
 #define TRUE 1
 #define FALSE 0
-#define ToRad(x) radians(x)	// *pi/180
-#define ToDeg(x) degrees(x)	// *180/pi
+
+// Just so that it's completely clear...
+#define ENABLED                 1
+#define DISABLED                0
+
+// this avoids a very common config error
+#define ENABLE ENABLED
+#define DISABLE DISABLED
 
 #define DEBUG 0
 #define SERVO_MAX 4500	// This value represents 45 degrees and is just an arbitrary representation of servo max travel.
-
-// active altitude sensor
-// ----------------------
-#define SONAR 0
-#define BARO 1
 
 // CH 7 control
 enum ch7_option {
     CH7_DO_NOTHING=0,
     CH7_SAVE_WP=1
 };
-
-#define T6 1000000
-#define T7 10000000
 
 // HIL enumerations
 #define HIL_MODE_DISABLED			0
@@ -45,35 +40,27 @@ enum mode {
     INITIALISING=16
 };
 
+enum GuidedMode {
+    Guided_WP,
+    Guided_Angle
+};
+
+
 // types of failsafe events
 #define FAILSAFE_EVENT_THROTTLE (1<<0)
 #define FAILSAFE_EVENT_GCS      (1<<1)
 #define FAILSAFE_EVENT_RC       (1<<2)
 
-//repeating events
-#define NO_REPEAT 0
-#define CH_5_TOGGLE 1
-#define CH_6_TOGGLE 2
-#define CH_7_TOGGLE 3
-#define CH_8_TOGGLE 4
-#define RELAY_TOGGLE 5
-#define STOP_REPEAT 10
-
-#define MAV_CMD_CONDITION_YAW 23
-
 //  Logging parameters
 #define LOG_CTUN_MSG	        0x01
 #define LOG_NTUN_MSG    		0x02
 #define LOG_PERFORMANCE_MSG		0x03
-#define LOG_CURRENT_MSG 		0x05
 #define LOG_STARTUP_MSG 		0x06
 #define LOG_SONAR_MSG 		    0x07
-#define LOG_ATTITUDE_MSG        0x08
-#define LOG_MODE_MSG            0x09
-#define LOG_COMPASS_MSG         0x0A
-#define LOG_COMPASS2_MSG        0x0C
+#define LOG_ARM_DISARM_MSG      0x08
 #define LOG_STEERING_MSG        0x0D
-#define LOG_COMPASS3_MSG        0x0E
+#define LOG_GUIDEDTARGET_MSG    0x0E
+#define LOG_ERROR_MSG           0x13
 
 #define TYPE_AIRSTART_MSG		0x00
 #define TYPE_GROUNDSTART_MSG	0x01
@@ -94,48 +81,25 @@ enum mode {
 #define MASK_LOG_CAMERA   		(1<<12)
 #define MASK_LOG_STEERING  		(1<<13)
 #define MASK_LOG_RC     		(1<<14)
-#define MASK_LOG_WHEN_DISARMED  (1UL<<16)
+#define MASK_LOG_ARM_DISARM     (1<<15)
+#define MASK_LOG_IMU_RAW        (1UL<<19)
 
-// Waypoint Modes
-// ----------------
-#define ABS_WP 0
-#define REL_WP 1
+// for mavlink SET_POSITION_TARGET messages
+#define MAVLINK_SET_POS_TYPE_MASK_POS_IGNORE      ((1<<0) | (1<<1) | (1<<2))
+#define MAVLINK_SET_POS_TYPE_MASK_VEL_IGNORE      ((1<<3) | (1<<4) | (1<<5))
+#define MAVLINK_SET_POS_TYPE_MASK_ACC_IGNORE      ((1<<6) | (1<<7) | (1<<8))
+#define MAVLINK_SET_POS_TYPE_MASK_FORCE           (1<<9)
+#define MAVLINK_SET_POS_TYPE_MASK_YAW_IGNORE      (1<<10)
+#define MAVLINK_SET_POS_TYPE_MASK_YAW_RATE_IGNORE (1<<11)
 
-// Command Queues
-// ---------------
-#define COMMAND_MUST 0
-#define COMMAND_MAY 1
-#define COMMAND_NOW 2
+// Error message sub systems and error codes
+#define ERROR_SUBSYSTEM_CRASH_CHECK         12
+// subsystem specific error codes -- crash checker
+#define ERROR_CODE_CRASH_CHECK_CRASH        1
 
-// Events
-// ------
-#define EVENT_WILL_REACH_WAYPOINT 1
-#define EVENT_SET_NEW_COMMAND_INDEX 2
-#define EVENT_LOADED_WAYPOINT 3
-#define EVENT_LOOP 4
-
-// Climb rate calculations
-#define	ALTITUDE_HISTORY_LENGTH 8	//Number of (time,altitude) points to regress a climb rate from
-
-// sonar
-#define MAX_SONAR_XL 0
-#define MAX_SONAR_LV 1
-#define SonarToCm(x) (x*1.26)   // Sonar raw value to centimeters
-#define AN4			4
-#define AN5			5
-
-#define SPEEDFILT 400			// centimeters/second; the speed below which a groundstart will be triggered
-
-// convert a boolean (0 or 1) to a sign for multiplying (0 maps to 1, 1 maps to -1)
-#define BOOL_TO_SIGN(bvalue) ((bvalue)?-1:1)
-
-// mark a function as not to be inlined
-#define NOINLINE __attribute__((noinline))
-
-enum Serial2Protocol {
-    SERIAL2_MAVLINK     = 1,
-    SERIAL2_FRSKY_DPORT = 2,
-    SERIAL2_FRSKY_SPORT = 3 // not supported yet
+enum fs_crash_action {
+  FS_CRASH_DISABLE = 0,
+  FS_CRASH_HOLD = 1,
+  FS_CRASH_HOLD_AND_DISARM = 2
 };
 
-#endif // _DEFINES_H
